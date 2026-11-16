@@ -1,0 +1,63 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "minecraft:profile",
+    "on_true": {
+      "type": "minecraft:composite",
+      "models": [
+        {
+          "type": "minecraft:model",
+          "model": "minecraft:item/splash_potion",
+          "tints": [
+            {
+              "type": "minecraft:potion",
+              "default": -13083194
+            }
+          ]
+        },
+        {
+          "type": "minecraft:special",
+          "base": "kome:item/mimicry_cap",
+          "model": {
+            "type": "minecraft:player_head"
+          },
+          "transformation": {
+            "left_rotation": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "right_rotation": [
+              0.0,
+              0.0,
+              0.3007,
+              0.9537
+            ],
+            "scale": [
+              0.625,
+              0.625,
+              0.625
+            ],
+            "translation": [
+              0.65625,
+              0.59375,
+              0.5
+            ]
+          }
+        }
+      ]
+    },
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/splash_potion",
+      "tints": [
+        {
+          "type": "minecraft:potion",
+          "default": -13083194
+        }
+      ]
+    }
+  }
+}

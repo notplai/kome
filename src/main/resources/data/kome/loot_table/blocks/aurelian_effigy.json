@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "kome:aurelian_effigy",
+            "state": {
+              "part": "lower"
+            }
+          },
+          "name": "kome:aurelian_effigy"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "kome:blocks/aurelian_effigy"
+}

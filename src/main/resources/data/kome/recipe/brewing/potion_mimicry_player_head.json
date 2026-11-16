@@ -1,0 +1,23 @@
+{
+  "type": "kome:mimicry_brewing",
+  "input": {
+    "item": "minecraft:potion",
+    "potion_contents": {
+      "potions": [
+        "minecraft:invisibility",
+        "minecraft:long_invisibility"
+      ]
+    }
+  },
+  "output": {
+    "components": {
+      "minecraft:potion_contents": {
+        "potion": "kome:mimicry"
+      }
+    },
+    "id": "minecraft:potion"
+  },
+  "reagent": {
+    "item": "minecraft:player_head"
+  }
+}

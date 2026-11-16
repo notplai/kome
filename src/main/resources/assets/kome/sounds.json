@@ -1,0 +1,32 @@
+{
+  "effigy_clock_three": {
+    "subtitle": "subtitles.kome.effigy_clock",
+    "sounds": [
+      "kome:effigy_clock_3"
+    ]
+  },
+  "effigy_clock_two": {
+    "subtitle": "subtitles.kome.effigy_clock",
+    "sounds": [
+      "kome:effigy_clock_2"
+    ]
+  },
+  "effigy_clock_one": {
+    "subtitle": "subtitles.kome.effigy_clock",
+    "sounds": [
+      "kome:effigy_clock_1"
+    ]
+  },
+  "effigy_crash": {
+    "subtitle": "subtitles.kome.effigy_crash",
+    "sounds": [
+      "kome:effigy_crash"
+    ]
+  },
+  "effigy_bell": {
+    "subtitle": "subtitles.kome.effigy_bell",
+    "sounds": [
+      "kome:effigy_bell"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "block.kome.aurelian_effigy": "Aurelian Effigy",
+  "item.kome.aurelian_sigil": "Aurelian Sigil",
+  "subtitles.kome.effigy_clock": "Effigy clock strikes",
+  "subtitles.kome.effigy_crash": "Effigy barrier crashes",
+  "subtitles.kome.effigy_bell": "Effigy bell tolls",
+  "item.kome.solaris_decree": "Solaris Decree",
+  "entity.kome.ritual": "Ritual",
+  "item.kome.sanguine_scythe": "Sanguine Scythe",
+  "item.kome.sanguine_scythe.bound": "Bound to %s",
+  "item.kome.sanguine_scythe.unbound": "Unbound",
+  "entity.kome.blood_slash": "Blood Slash",
+  "effect.kome.exsanguinate": "Exsanguinate",
+  "effect.kome.mimicry": "Mimicry",
+  "item.kome.mimicry.face": "Becomes %s",
+  "item.minecraft.potion.effect.mimicry": "Potion of Mimicry",
+  "item.minecraft.splash_potion.effect.mimicry": "Splash Potion of Mimicry",
+  "item.minecraft.lingering_potion.effect.mimicry": "Lingering Potion of Mimicry",
+  "item.minecraft.tipped_arrow.effect.mimicry": "Arrow of Mimicry",
+  "enchantment.kome.skystride": "Skystride"
+}
