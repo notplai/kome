@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "kome:item/cosmic_ray_beacon",
+    "tints": [
+      {
+        "type": "kome:cosmic_ray_color"
+      }
+    ]
+  }
+}

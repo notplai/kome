@@ -1,0 +1,101 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "kome:spell",
+    "cases": [
+      {
+        "when": "sword",
+        "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "gui",
+                "ground",
+                "fixed",
+                "on_shelf"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "kome:item/ritual_sign_sword",
+                "tints": [
+                  {
+                    "type": "kome:spell_color"
+                  }
+                ]
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "kome:item/spell_sword",
+            "tints": [
+              {
+                "type": "kome:spell_color"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:select",
+      "property": "minecraft:display_context",
+      "cases": [
+        {
+          "when": [
+            "gui",
+            "ground",
+            "fixed",
+            "on_shelf"
+          ],
+          "model": {
+            "type": "minecraft:select",
+            "property": "minecraft:component",
+            "component": "kome:spell",
+            "cases": [
+              {
+                "when": "shooting_star",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "kome:item/ritual_sign_shooting_star",
+                  "tints": [
+                    {
+                      "type": "kome:spell_color"
+                    }
+                  ]
+                }
+              },
+              {
+                "when": "lightning",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "kome:item/ritual_sign_lightning",
+                  "tints": [
+                    {
+                      "type": "kome:spell_color"
+                    }
+                  ]
+                }
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "kome:item/ritual_sign",
+              "tints": [
+                {
+                  "type": "kome:spell_color"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:empty"
+      }
+    }
+  }
+}

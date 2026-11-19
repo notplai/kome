@@ -9,7 +9,10 @@
     "ThrownSplashPotionMixin"
   ],
   "client": [
-    "client.AbstractClientPlayerMixin"
+    "client.AbstractClientPlayerMixin",
+    "client.ClientInputAccessor",
+    "client.FirstPersonHandsAndItemsRendererAccessor",
+    "client.GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

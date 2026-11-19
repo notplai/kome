@@ -112,6 +112,9 @@ public class AurelianEffigyBlock extends HorizontalDirectionalBlock implements E
         // Also on the client, so the barrier starts spreading at once instead of flashing up whole until the server answers.
         if (level.getBlockEntity(pos) instanceof AurelianEffigyBlockEntity effigy) {
             effigy.markPlaced(level.getGameTime());
+            if (by != null) {
+                effigy.setOwner(by.getUUID());
+            }
             if (!level.isClientSide()) {
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
             }

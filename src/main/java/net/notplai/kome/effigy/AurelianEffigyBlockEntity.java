@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.notplai.kome.Kome;
+import net.notplai.kome.KomeDamageTypes;
 
 /**
  * Runs an effigy's whole cycle off the game time it was placed at: the barrier closes in for five minutes holding
@@ -75,6 +77,7 @@ public class AurelianEffigyBlockEntity extends BlockEntity {
     private static final int GOLD = 0xFFC83C;
     private static final String TAG_PLACED_AT = "placed_at";
     private static final String TAG_ABSENT = "absent";
+    private static final String TAG_OWNER = "owner";
     private static final long NOT_PLACED = -1L;
     private static final long NOT_TICKED = Long.MIN_VALUE;
 
@@ -88,9 +91,25 @@ public class AurelianEffigyBlockEntity extends BlockEntity {
     private final Set<UUID> captives = new HashSet<>();
     /** Players who logged out while the barrier held them. Logging out is no way out of it: see {@link #settleAbsent}. */
     private final Set<UUID> absent = new HashSet<>();
+    /** Who placed it. Everything it kills is put down to them. */
+    private @Nullable UUID owner;
 
     public AurelianEffigyBlockEntity(BlockPos worldPosition, BlockState blockState) {
         super(Kome.AURELIAN_EFFIGY_BLOCK_ENTITY.get(), worldPosition, blockState);
+    }
+
+    public void setOwner(UUID owner) {
+        this.owner = owner;
+        this.setChanged();
+    }
+
+    /** Whoever placed the effigy, if they are still in the game. */
+    private static @Nullable Entity findOwner(ServerLevel level, @Nullable UUID owner) {
+        if (owner == null) {
+            return null;
+        }
+        ServerPlayer player = level.getServer().getPlayerList().getPlayer(owner);
+        return player != null ? player : level.getEntity(owner);
     }
 
     public void markPlaced(long gameTime) {
@@ -215,9 +234,9 @@ public class AurelianEffigyBlockEntity extends BlockEntity {
         for (UUID id : this.absent) {
             ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
             if (player == null) {
-                EffigyCondemned.get(level.getServer()).add(id);
+                EffigyCondemned.get(level.getServer()).add(id, this.owner);
             } else if (player.isAlive()) {
-                slay(player.level(), player);
+                slay(player.level(), player, this.owner);
             }
         }
 
@@ -341,25 +360,26 @@ public class AurelianEffigyBlockEntity extends BlockEntity {
         Set<UUID> captives = Set.copyOf(this.captives);
         this.captives.clear();
         for (LivingEntity victim : level.getEntitiesOfClass(LivingEntity.class, box, LivingEntity::isAlive)) {
-            slay(level, victim);
+            slay(level, victim, this.owner);
         }
 
         for (UUID captive : captives) {
             if (level.getPlayerByUUID(captive) instanceof ServerPlayer player && player.isAlive()) {
-                slay(level, player);
+                slay(level, player, this.owner);
             }
         }
     }
 
-    static void slay(ServerLevel level, LivingEntity victim) {
+    /** Kills {@code victim} outright, past armour, resistance and even a totem, and puts it down to the effigy's owner. */
+    static void slay(ServerLevel level, LivingEntity victim, @Nullable UUID owner) {
         if (victim instanceof Player player && (player.isCreative() || player.isSpectator())) {
             return;
         }
 
-        victim.hurtServer(level, level.damageSources().magic(), Float.MAX_VALUE);
-        if (victim.isAlive()) {
-            victim.kill(level);
-        }
+        Entity by = findOwner(level, owner);
+        victim.hurtServer(
+            level, KomeDamageTypes.claimed(level, KomeDamageTypes.AURELIAN_EFFIGY, KomeDamageTypes.AURELIAN_EFFIGY_UNCLAIMED, null, by), Float.MAX_VALUE
+        );
     }
 
     private static void playSound(ServerLevel level, BlockPos pos, SoundEvent sound, float volume, float pitch) {
@@ -372,6 +392,7 @@ public class AurelianEffigyBlockEntity extends BlockEntity {
         this.placedAt = input.getLongOr(TAG_PLACED_AT, NOT_PLACED);
         this.absent.clear();
         input.read(TAG_ABSENT, UUIDUtil.CODEC_SET).ifPresent(this.absent::addAll);
+        this.owner = input.read(TAG_OWNER, UUIDUtil.CODEC).orElse(null);
     }
 
     @Override
@@ -380,6 +401,9 @@ public class AurelianEffigyBlockEntity extends BlockEntity {
         output.putLong(TAG_PLACED_AT, this.placedAt);
         if (!this.absent.isEmpty()) {
             output.store(TAG_ABSENT, UUIDUtil.CODEC_SET, this.absent);
+        }
+        if (this.owner != null) {
+            output.store(TAG_OWNER, UUIDUtil.CODEC, this.owner);
         }
     }
 

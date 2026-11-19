@@ -1,0 +1,17 @@
+{
+  "type": "kome:cosmic_ray_beacon",
+  "category": "equipment",
+  "key": {
+    "E": "minecraft:end_crystal",
+    "D": "#minecraft:dyes",
+    "S": "minecraft:nether_star"
+  },
+  "pattern": [
+    "E",
+    "D",
+    "S"
+  ],
+  "result": {
+    "id": "kome:cosmic_ray_beacon"
+  }
+}

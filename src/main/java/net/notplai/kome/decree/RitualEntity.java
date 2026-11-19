@@ -26,6 +26,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.notplai.kome.Kome;
+import net.notplai.kome.KomeDamageTypes;
 
 /**
  * The ritual itself: sits under its target, keeps it bound, and slays it once the beam reaches full strength.
@@ -189,10 +190,10 @@ public class RitualEntity extends Entity {
         ServerPlayer caster = this.casterId == null ? null : level.getServer().getPlayerList().getPlayer(this.casterId);
         this.endRitual(target);
         this.entityData.set(DATA_EXPLODED, true);
-        target.hurtServer(level, this.damageSources().indirectMagic(this, caster), Float.MAX_VALUE);
-        if (target.isAlive()) {
-            target.kill(level);
-        }
+        // Past armour, resistance and even a totem, and put down to the caster.
+        target.hurtServer(
+            level, KomeDamageTypes.claimed(level, KomeDamageTypes.SOLARIS_DECREE, KomeDamageTypes.SOLARIS_DECREE_UNCLAIMED, this, caster), Float.MAX_VALUE
+        );
 
         double centerY = this.getY() + target.getBbHeight() * 0.5;
         level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFF000000 | GOLD), this.getX(), centerY, this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);

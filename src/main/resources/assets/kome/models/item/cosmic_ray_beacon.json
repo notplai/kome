@@ -1,0 +1,84 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "kome:item/cosmic_ray_beacon",
+    "core": "kome:item/cosmic_ray_beacon"
+  },
+  "elements": [
+    {
+      "name": "core",
+      "from": [
+        3,
+        3,
+        3
+      ],
+      "to": [
+        13,
+        14,
+        13
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#core",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#core",
+          "tintindex": 0
+        },
+        "north": {
+          "uv": [
+            3,
+            2,
+            13,
+            13
+          ],
+          "texture": "#core",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            3,
+            2,
+            13,
+            13
+          ],
+          "texture": "#core",
+          "tintindex": 0
+        },
+        "west": {
+          "uv": [
+            3,
+            2,
+            13,
+            13
+          ],
+          "texture": "#core",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            3,
+            2,
+            13,
+            13
+          ],
+          "texture": "#core",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

@@ -20,7 +20,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.alchemy.Potion;
@@ -39,12 +41,22 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.notplai.kome.cosmicray.CosmicRayActivation;
+import net.notplai.kome.cosmicray.CosmicRayBeaconItem;
+import net.notplai.kome.cosmicray.CosmicRayBeaconRecipe;
 import net.notplai.kome.decree.RitualEntity;
 import net.notplai.kome.decree.SolarisDecreeItem;
 import net.notplai.kome.effigy.AurelianEffigyBlock;
 import net.notplai.kome.effigy.AurelianEffigyBlockEntity;
 import net.notplai.kome.mimicry.MimicryBrewingRecipe;
 import net.notplai.kome.mimicry.MimicryEffect;
+import net.notplai.kome.ritualsign.LightningMarkEntity;
+import net.notplai.kome.ritualsign.RitualSignItem;
+import net.notplai.kome.ritualsign.SpellSlots;
+import net.notplai.kome.ritualsign.SpellSwitching;
+import net.notplai.kome.ritualsign.ShootingStarEntity;
+import net.notplai.kome.ritualsign.Spell;
+import net.notplai.kome.ritualsign.SpellSignEntity;
 import net.notplai.kome.scythe.BloodSlashEntity;
 import net.notplai.kome.scythe.ExsanguinateBind;
 import net.notplai.kome.scythe.ExsanguinateEffect;
@@ -171,6 +183,72 @@ public class Kome {
             .build()
     );
 
+    // ---- Cosmic Ray Beacon ----
+
+    public static final DeferredItem<CosmicRayBeaconItem> COSMIC_RAY_BEACON = ITEMS.registerItem(
+        "cosmic_ray_beacon", CosmicRayBeaconItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC).fireResistant()
+    );
+    /** On a Cosmic Ray Beacon: the colour of its beam, from the dye it was crafted with. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<DyeColor>> COSMIC_RAY_COLOR = DATA_COMPONENTS.registerComponentType(
+        "cosmic_ray_color", builder -> builder.persistent(DyeColor.CODEC).networkSynchronized(DyeColor.STREAM_CODEC)
+    );
+    /** On a player: the Cosmic Ray Beacon they have set off, while it runs. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<CosmicRayActivation>> COSMIC_RAY_ACTIVATION = ATTACHMENT_TYPES.register(
+        "cosmic_ray_activation",
+        () -> AttachmentType.<CosmicRayActivation>builder(() -> { throw new IllegalStateException("A cosmic ray activation has no default"); })
+            .sync(CosmicRayActivation.STREAM_CODEC)
+            .build()
+    );
+    /** On a player: the game time their Cosmic Ray Beacons are rested again, kept so the rest outlasts leaving. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> COSMIC_RAY_RESTS_UNTIL = ATTACHMENT_TYPES.register(
+        "cosmic_ray_rests_until",
+        () -> AttachmentType.builder(() -> 0L).serialize(Codec.LONG.fieldOf("until")).copyOnDeath().build()
+    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CosmicRayBeaconRecipe>> COSMIC_RAY_BEACON_RECIPE = RECIPE_SERIALIZERS.register(
+        "cosmic_ray_beacon", () -> CosmicRayBeaconRecipe.SERIALIZER
+    );
+
+    // ---- Ritual Sign ----
+
+    public static final DeferredItem<RitualSignItem> RITUAL_SIGN = ITEMS.registerItem(
+        "ritual_sign", RitualSignItem::new, properties -> properties.stacksTo(1).rarity(Rarity.EPIC).fireResistant()
+    );
+    /** On a player: the spells they carry, and which their Ritual Signs cast. Only they are told of it. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<SpellSlots>> SPELL_SLOTS = ATTACHMENT_TYPES.register(
+        "spell_slots",
+        () -> AttachmentType.builder(SpellSlots::starting)
+            .serialize(SpellSlots.CODEC.fieldOf("slots"))
+            .copyOnDeath()
+            .sync((holder, player) -> holder == player, SpellSlots.STREAM_CODEC)
+            .build()
+    );
+    /** On a Ritual Sign: the magic it is bound to. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Spell>> SPELL = DATA_COMPONENTS.registerComponentType(
+        "spell", builder -> builder.persistent(Spell.CODEC).networkSynchronized(Spell.STREAM_CODEC)
+    );
+    /** A Spell Sword's sweep, in the sword's own colour. */
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPELL_SWEEP = PARTICLE_TYPES.register(
+        "spell_sweep", () -> new SimpleParticleType(true)
+    );
+    public static final DeferredHolder<EntityType<?>, EntityType<SpellSignEntity>> SPELL_SIGN = ENTITY_TYPES.registerEntityType(
+        "spell_sign",
+        SpellSignEntity::new,
+        MobCategory.MISC,
+        builder -> builder.sized(0.5F, 0.5F).noSave().noSummon().fireImmune().noLootTable().clientTrackingRange(8).updateInterval(20)
+    );
+    public static final DeferredHolder<EntityType<?>, EntityType<ShootingStarEntity>> SHOOTING_STAR = ENTITY_TYPES.registerEntityType(
+        "shooting_star",
+        ShootingStarEntity::new,
+        MobCategory.MISC,
+        builder -> builder.sized(0.5F, 0.5F).noSave().noSummon().fireImmune().noLootTable().clientTrackingRange(8).updateInterval(1)
+    );
+    public static final DeferredHolder<EntityType<?>, EntityType<LightningMarkEntity>> LIGHTNING_MARK = ENTITY_TYPES.registerEntityType(
+        "lightning_mark",
+        LightningMarkEntity::new,
+        MobCategory.MISC,
+        builder -> builder.sized(0.5F, 0.5F).noSave().noSummon().fireImmune().noLootTable().clientTrackingRange(8).updateInterval(1)
+    );
+
     public Kome(IEventBus modEventBus, ModContainer modContainer) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
@@ -185,12 +263,18 @@ public class Kome {
         SOUND_EVENTS.register(modEventBus);
         modEventBus.addListener(Kome::addCreativeTabItems);
         modEventBus.addListener(Skystride::registerPayloads);
+        modEventBus.addListener(CosmicRayBeaconItem::registerPayloads);
+        modEventBus.addListener(SpellSwitching::registerPayloads);
     }
 
     private static void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(SOLARIS_DECREE);
             event.accept(SANGUINE_SCYTHE);
+            for (DyeColor color : DyeColor.values()) {
+                event.accept(CosmicRayBeaconItem.withColor(new ItemStack(COSMIC_RAY_BEACON.get()), color));
+            }
+            event.accept(RITUAL_SIGN);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.accept(AURELIAN_EFFIGY_ITEM);
         } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {

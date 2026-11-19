@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "kome:item/ritual_sign_shooting_star"
+  }
+}

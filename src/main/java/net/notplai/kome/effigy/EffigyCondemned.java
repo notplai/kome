@@ -1,10 +1,15 @@
 package net.notplai.kome.effigy;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
@@ -23,38 +28,60 @@ import net.notplai.kome.Kome;
  */
 @EventBusSubscriber(modid = Kome.MODID)
 public class EffigyCondemned extends SavedData {
-    private static final Codec<EffigyCondemned> CODEC = UUIDUtil.CODEC_SET.xmap(EffigyCondemned::new, condemned -> condemned.players);
+    /** One condemned player, and who placed the effigy that condemned them, if anyone did. */
+    private record Entry(UUID player, Optional<UUID> owner) {
+        static final Codec<Entry> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(UUIDUtil.CODEC.fieldOf("player").forGetter(Entry::player), UUIDUtil.CODEC.optionalFieldOf("owner").forGetter(Entry::owner))
+                .apply(instance, Entry::new)
+        );
+    }
+
+    private static final Codec<EffigyCondemned> CODEC = Codec.withAlternative(
+        Entry.CODEC.listOf().xmap(EffigyCondemned::fromEntries, EffigyCondemned::toEntries),
+        // Saved before owners were kept: just the players.
+        UUIDUtil.CODEC_SET.xmap(
+            players -> fromEntries(players.stream().map(player -> new Entry(player, Optional.empty())).toList()), condemned -> condemned.players.keySet()
+        )
+    );
     private static final SavedDataType<EffigyCondemned> TYPE = new SavedDataType<>(
         Identifier.fromNamespaceAndPath(Kome.MODID, "effigy_condemned"), EffigyCondemned::new, CODEC
     );
 
-    private final Set<UUID> players;
+    /** Each condemned player, and who placed the effigy that condemned them. */
+    private final Map<UUID, Optional<UUID>> players = new HashMap<>();
 
     private EffigyCondemned() {
-        this(new HashSet<>());
     }
 
-    private EffigyCondemned(Set<UUID> players) {
-        this.players = new HashSet<>(players);
+    private static EffigyCondemned fromEntries(List<Entry> entries) {
+        EffigyCondemned condemned = new EffigyCondemned();
+        for (Entry entry : entries) {
+            condemned.players.put(entry.player(), entry.owner());
+        }
+        return condemned;
+    }
+
+    private static List<Entry> toEntries(EffigyCondemned condemned) {
+        return condemned.players.entrySet().stream().map(entry -> new Entry(entry.getKey(), entry.getValue())).toList();
     }
 
     public static EffigyCondemned get(MinecraftServer server) {
         return server.getDataStorage().computeIfAbsent(TYPE);
     }
 
-    public void add(UUID player) {
-        if (this.players.add(player)) {
-            this.setDirty();
-        }
+    public void add(UUID player, @Nullable UUID owner) {
+        this.players.put(player, Optional.ofNullable(owner));
+        this.setDirty();
     }
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             EffigyCondemned condemned = get(player.level().getServer());
-            if (condemned.players.remove(player.getUUID())) {
+            Optional<UUID> owner = condemned.players.remove(player.getUUID());
+            if (owner != null) {
                 condemned.setDirty();
-                AurelianEffigyBlockEntity.slay(player.level(), player);
+                AurelianEffigyBlockEntity.slay(player.level(), player, owner.orElse(null));
             }
         }
     }

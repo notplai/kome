@@ -14,6 +14,7 @@ import net.notplai.kome.effigy.AurelianEffigyBlockEntity;
 import net.notplai.kome.effigy.client.AurelianEffigyRenderer;
 import net.notplai.kome.effigy.client.EffigyAshParticle;
 import net.notplai.kome.effigy.client.EffigyEffects;
+import net.notplai.kome.ritualsign.client.SpellSweepParticle;
 import net.notplai.kome.scythe.client.SanguineSweepParticle;
 
 @EventBusSubscriber(modid = Kome.MODID, value = Dist.CLIENT)
@@ -44,5 +45,6 @@ public final class KomeClient {
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(Kome.SANGUINE_SWEEP.get(), SanguineSweepParticle.Provider::new);
         event.registerSpriteSet(Kome.EFFIGY_ASH.get(), EffigyAshParticle.Provider::new);
+        event.registerSpriteSet(Kome.SPELL_SWEEP.get(), SpellSweepParticle.Provider::new);
     }
 }

@@ -19,6 +19,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.notplai.kome.Kome;
+import net.notplai.kome.KomeDamageTypes;
 
 /**
  * A slash of the wielder's blood. It flies straight, cuts through every living thing in its path, and leaves each one
@@ -95,7 +96,7 @@ public class BloodSlashEntity extends Projectile {
 
     private void woundAlong(ServerLevel level, Vec3 movement) {
         Entity owner = this.getOwner();
-        DamageSource source = this.damageSources().indirectMagic(this, owner);
+        DamageSource source = KomeDamageTypes.source(level, KomeDamageTypes.BLOOD_SLASH, this, owner);
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().expandTowards(movement).inflate(0.3))) {
             if (target == owner || !target.isAlive() || target.isSpectator() || !this.wounded.add(target.getId())) {
                 continue;
